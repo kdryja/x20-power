@@ -19,7 +19,7 @@ Use at your own risk.
 |---|---|
 | Charge limit on/off | By charging behaviour: holds at 80% and resumes charging when switched off. Holding through sleep and after a reboot isn't confirmed yet. |
 | Travel Mode | The switch is confirmed in Windows, and in Linux its status follows the toggle. The effect on charging power isn't confirmed (needs a >65 W charger). |
-| TDP | The firmware limits and platform profile follow the slider, power source and running game. Power draw under load isn't confirmed yet. |
+| TDP | By power draw: in Hades II, APU power held flat at about 10 W with a 10 W setting and rose to 22–25 W at 20 W. The limits follow the slider, power source and running game. A light, frame-capped game (Spelunky 2 at about 8 W) didn't drop to a 7 W setting within 6 minutes. |
 
 ## Why the standard Linux charge limit doesn't work on the X20
 
