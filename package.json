@@ -1,0 +1,7 @@
+{
+  "name": "x20-power",
+  "version": "0.2.0",
+  "description": "Charge limit, Travel Mode and per-game TDP for the ROG Xbox Ally X20",
+  "type": "module",
+  "license": "MIT"
+}

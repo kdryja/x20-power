@@ -1,0 +1,17 @@
+{
+  "name": "X20 Power",
+  "author": "kdryja",
+  "flags": [
+    "root"
+  ],
+  "api_version": 1,
+  "publish": {
+    "tags": [
+      "root",
+      "battery",
+      "tdp"
+    ],
+    "description": "Charge limit (80% or full), Travel Mode and per-game TDP for the ROG Xbox Ally X20",
+    "image": ""
+  }
+}
