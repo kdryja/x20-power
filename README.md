@@ -73,18 +73,31 @@ On first start, X20 Power imports the per-game battery TDP values from SimpleDec
 
 ## Install
 
+X20 Power isn't in the Decky store, so it installs through Decky's developer settings:
+
+1. In Decky, turn on **Settings → General → Developer mode**.
+2. In **Settings → Developer**, either:
+   - use **Install Plugin from URL** with `https://github.com/kdryja/x20-power/releases/latest/download/x20-power.zip`, or
+   - download `x20-power.zip` from [Releases](https://github.com/kdryja/x20-power/releases) and use **Install Plugin from ZIP File**.
+
+Decky warns that it hasn't reviewed third-party plugins. To update, install the newer ZIP the same way; your settings are kept. To uninstall, use Decky's plugin settings.
+
+From a clone instead:
+
 ```bash
 git clone https://github.com/kdryja/x20-power.git
 cd x20-power
 sudo ./install.sh
 ```
 
-`install.sh` copies the plugin to `~/homebrew/plugins/x20-power` and restarts Decky. To uninstall, use Decky's plugin settings.
+`install.sh` copies the plugin to `~/homebrew/plugins/x20-power` and restarts Decky. That's the same folder the ZIP installs to, so you can switch between the two.
 
 ## Notes for hacking on it
 
 - The frontend (`dist/index.js`) is hand-written, so there's no Node build step. It uses the globals Decky provides (`window.SP_REACT`, `window.DFL`) and the loader API connection used by `@decky/api`. `package.json` must keep `"type": "module"`. Without it, Decky loads the file as a legacy script and fails with "Unexpected token export".
 - `tools/cdp_compile.py` syntax-checks `dist/index.js` in Steam's own JS engine. It compiles but doesn't run the file, through the CEF debug port Decky enables. Run it on the device: `python3 tools/cdp_compile.py dist/index.js`.
+- `python3 tools/build_zip.py` builds the Decky ZIP into `build/`. The [Build workflow](.github/workflows/build.yml) runs it on every push and pull request, after checking that `main.py` compiles and `dist/index.js` parses. The ZIP is kept as a workflow artifact.
+- To release, bump `version` in `package.json`, commit, then push a matching tag (`git tag v0.3.0 && git push origin v0.3.0`). The workflow publishes a release with the ZIP and its SHA-256, and refuses a tag that doesn't match `package.json`.
 - `tools/x20-wmi-read.ps1` is the read-only Windows script used to find Travel Mode. Run it in an elevated PowerShell.
 - The debugfs interface is meant for debugging, not as a stable API. The proper fix is for the kernel's `asus-wmi` driver to learn the X20's charge-limit sequence.
 

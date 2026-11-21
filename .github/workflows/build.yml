@@ -1,0 +1,87 @@
+name: Build
+
+# Every push and pull request checks the code and builds the Decky ZIP as a workflow artifact.
+# Pushing a tag vX.Y.Z (matching package.json's version) also publishes a release with the ZIP.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check main.py compiles
+        run: python3 -m py_compile main.py
+
+      - name: Check dist/index.js parses
+        run: node --check dist/index.js
+
+      - name: Build the ZIP
+        run: python3 tools/build_zip.py
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: x20-power-${{ github.sha }}
+          path: |
+            build/x20-power.zip
+            build/x20-power.zip.sha256
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check the tag matches package.json
+        run: |
+          version=$(python3 -c 'import json; print(json.load(open("package.json"))["version"])')
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag is $GITHUB_REF_NAME but package.json says $version"
+            exit 1
+          fi
+
+      - name: Build the ZIP
+        run: python3 tools/build_zip.py
+
+      - name: Write the release notes
+        run: |
+          prev=$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)
+          url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME/x20-power.zip"
+          {
+            echo "## Install"
+            echo
+            echo "In Decky, turn on **Settings → General → Developer mode**. Then, in **Settings → Developer**, either:"
+            echo
+            echo "- use **Install Plugin from URL** with \`$url\`, or"
+            echo "- download \`x20-power.zip\` below and use **Install Plugin from ZIP File**."
+            echo
+            echo "Installing over an earlier version keeps your settings."
+            echo
+            echo "## Changes"
+            echo
+            git log --no-merges --format='- %s' ${prev:+"$prev.."}"$GITHUB_REF_NAME"
+            echo
+            echo "SHA-256 of \`x20-power.zip\`: \`$(cut -d' ' -f1 build/x20-power.zip.sha256)\`"
+          } > build/notes.md
+          cat build/notes.md
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" build/x20-power.zip build/x20-power.zip.sha256 \
+            --title "X20 Power $GITHUB_REF_NAME" --notes-file build/notes.md --verify-tag
