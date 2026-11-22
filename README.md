@@ -17,8 +17,8 @@ Use at your own risk.
 
 | Feature | How far it's verified |
 |---|---|
-| Charge limit on/off | By charging behaviour: holds at 80% and resumes charging when switched off. Holding through sleep and after a reboot isn't confirmed yet. |
-| Travel Mode | The switch is confirmed in Windows, and in Linux its status follows the toggle. The effect on charging power isn't confirmed (needs a >65 W charger). |
+| Charge limit on/off | By charging behaviour: holds at 80%, also overnight on the charger, and resumes charging when switched off. Holding after a reboot isn't confirmed yet. |
+| Travel Mode | By behaviour: on a 100 W charger that makes the X20 connect and disconnect it about once a second instead of charging, switching Travel Mode on stops the loop. The 65 W cap itself hasn't been measured. |
 | TDP | By power draw: in Hades II, APU power held flat at about 10 W with a 10 W setting and rose to 22–25 W at 20 W. The limits follow the slider, power source and running game. A light, frame-capped game (Spelunky 2 at about 8 W) didn't drop to a 7 W setting within 6 minutes. |
 
 ## Why the standard Linux charge limit doesn't work on the X20
@@ -45,7 +45,7 @@ Travel Mode is WMI device `0x00090034`:
 - `DEVS` writes EC bit `TRED` (ERAM offset 0xA1, bit 2).
 - `DSTS` reads `TRSA` (0xA1, bit 6).
 
-It was found by reading every side-effect-free WMI getter in Windows while toggling Travel Mode on, off and on again in Armoury Crate (see [docs/travel-mode-reads.txt](docs/travel-mode-reads.txt)). The setting persists across reboots. From Linux, the status follows the toggle. **Its effect on charging power has not been verified yet**: that needs a charger above 65 W.
+It was found by reading every side-effect-free WMI getter in Windows while toggling Travel Mode on, off and on again in Armoury Crate (see [docs/travel-mode-reads.txt](docs/travel-mode-reads.txt)). The setting persists across reboots. From Linux, the status follows the toggle, and the toggle has a real effect. Some X20s, this one included, don't charge from some 100 W chargers: the console connects and disconnects the charger about once a second, and vibrates each time. On this X20, with such a charger behind the dock, switching Travel Mode on from X20 Power stops the loop. The 65 W cap itself hasn't been measured.
 
 ## TDP
 
